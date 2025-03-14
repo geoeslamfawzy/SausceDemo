@@ -3,7 +3,7 @@ name: Selenium E2E Tests
 on:
   push:
     branches:
-      - main
+      - main  # Runs on push to the main branch
   schedule:
     - cron: "0 22 * * *"  # Runs daily at 12 AM Cairo time (UTC+2)
 
@@ -13,15 +13,24 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4  # Fetches the latest code
 
       - name: Set up JDK 21  # Ensure Java 21 is installed
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'  # Use Eclipse Temurin (Adoptium)
+          distribution: 'temurin'  # Uses Eclipse Temurin (Adoptium)
           java-version: '21'
 
-      - name: Cache Maven dependencies
+      - name: Verify Java Version
+        run: java -version  # Debugging step to check Java version
+
+      - name: Install Latest Maven  # Ensure Maven is up-to-date
+        run: |
+          sudo apt update
+          sudo apt install -y maven
+          mvn -version  # Verify Maven version
+
+      - name: Cache Maven dependencies  # Speeds up builds
         uses: actions/cache@v3
         with:
           path: ~/.m2
@@ -30,7 +39,14 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Install dependencies
-        run: mvn install -DskipTests
+        run: mvn install -DskipTests  # Installs required dependencies
 
       - name: Run Selenium E2E Tests
         run: mvn test
+
+      - name: Upload Test Reports (Optional)
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-reports
+          path: target/surefire-reports/  # Uploads test results for debugging
