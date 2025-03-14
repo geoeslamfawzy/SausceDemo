@@ -4,29 +4,34 @@ on:
   push:
     branches:
       - main  # Runs on push to the main branch
+  workflow_dispatch:  # Allows manual workflow runs
   schedule:
-    - cron: "0 22 * * *"  # Runs daily at 22:00 UTC (Midnight Cairo time)
+    - cron: "0 22 * * *"  # Runs daily at 12 AM Cairo time (UTC+2)
 
 jobs:
   run-selenium-tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Use latest Ubuntu runner
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4  # Fetches the latest code
 
-      - name: Set up JDK 21
+      - name: Set up JDK 21  # Ensure Java 21 is installed
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
+          distribution: 'temurin'  # Uses Eclipse Temurin (Adoptium)
           java-version: '21'
 
-      - name: Verify Java & Maven Versions
-        run: |
-          java -version
-          mvn -version  # No need to manually install Maven
+      - name: Verify Java Version
+        run: java -version  # Debugging step to check Java version
 
-      - name: Cache Maven dependencies
+      - name: Install Latest Maven  # Ensure Maven is up-to-date
+        run: |
+          sudo apt update
+          sudo apt install -y maven
+          mvn -version  # Verify Maven version
+
+      - name: Cache Maven dependencies  # Speeds up builds
         uses: actions/cache@v3
         with:
           path: ~/.m2
@@ -35,24 +40,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Install dependencies
-        run: mvn install -DskipTests
-
-      - name: Start Xvfb (for Selenium GUI tests)
-        run: Xvfb :99 -screen 0 1920x1080x24 &
-
-      - name: Set Display
-        run: export DISPLAY=:99
+        run: mvn install -DskipTests  # Installs required dependencies
 
       - name: Run Selenium E2E Tests
         run: mvn test
-
-      - name: Upload Test Reports
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-reports
-          path: target/surefire-reports/
-
-      - name: Print Logs for Debugging
-        if: always()
-        run: cat target/surefire-reports/*.txt || echo "No logs found"
