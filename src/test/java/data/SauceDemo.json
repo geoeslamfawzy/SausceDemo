@@ -1,0 +1,35 @@
+{
+  "testData":{
+    "prices": [
+      {
+        "productName": "Onesie",
+        "productPrice": "7.99"
+      },
+      {
+        "productName": "Bike Light",
+        "productPrice": "9.99"
+      },
+      {
+        "productName": "Bolt T-Shirt",
+        "productPrice": "15.99"
+      },
+      {
+        "productName": "T-Shirt (Red)",
+        "productPrice": "15.99"
+      },
+      {
+        "productName": "Backpack",
+        "productPrice": "29.99"
+      },
+      {
+        "productName": "Fleece Jacket",
+        "productPrice": "49.99"
+      }
+    ],
+    "checkout": {
+      "firstName": "Eslam",
+      "lastName": "Fawzy",
+      "zipCode": "123456"
+    }
+  }
+}
