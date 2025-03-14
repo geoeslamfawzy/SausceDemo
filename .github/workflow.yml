@@ -33,4 +33,39 @@ jobs:
         run: mvn install -DskipTests
 
       - name: Run Selenium E2E Tests
+        run: mvn tesname: Selenium E2E Tests
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "0 22 * * *"  # Runs daily at 12 AM Cairo time (UTC+2)
+
+jobs:
+  run-selenium-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21  # Ensure Java 21 is installed
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'  # Use Eclipse Temurin (Adoptium)
+          java-version: '21'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Install dependencies
+        run: mvn install -DskipTests
+
+      - name: Run Selenium E2E Tests
         run: mvn test
